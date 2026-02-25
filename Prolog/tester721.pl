@@ -9,9 +9,45 @@
  * two points to your course grade, up to the maximum of twenty points
  * for ten properly solved problems. */
 
+/*Only Odd Digits*/
+only_odd_digits(N) :-
+    integer(N),
+    N > 0,
+    only_odd_digits_rec(N).
 
+only_odd_digits_rec(N) :-
+    N < 10,
+    1 is N mod 2.
 
+only_odd_digits_rec(N) :-
+    N >= 10,
+    D is N mod 10,
+    1 is D mod 2,
+    N1 is N div 10,
+    only_odd_digits_rec(N1).
 
+/*Domino Cycle*/
+domino_cycle([ (A,B) ]) :-
+    between(1,6,A),
+    between(1,6,B),
+    A = B.
+
+domino_cycle([ (A,B) | Rest ]) :-
+    between(1,6,A),
+    between(1,6,B),
+    domino_cycle(Rest, B, A).
+
+domino_cycle([ (A,B) ], Last, First) :-
+    between(1,6,A),
+    between(1,6,B),
+    A = Last,
+    B = First.
+
+domino_cycle([ (A,B) | Rest ], Last, First) :-
+    between(1,6,A),
+    between(1,6,B),
+    A = Last,
+    domino_cycle(Rest, B, First).
 
 
 
@@ -19,8 +55,8 @@
  * Prolog predicates that you have defined in the above space. */
 
 all :-
-	/* Fill in the calls to test predicates here. */
-	true.
+    test_only_odd_digits,
+	test_domino_cycle.
 
 /* DO NOT MODIFY ANYTHING BELOW THIS LINE!!!! */
 
