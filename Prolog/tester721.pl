@@ -49,14 +49,101 @@ domino_cycle([ (A,B) | Rest ], Last, First) :-
     A = Last,
     domino_cycle(Rest, B, First).
 
+/*First Missing Positive*/
+first_missing_positive(Items, Result) :-
+    include(positive_integer, Items, PosInts),
+    sort(PosInts, Sorted),
+    find_missing(Sorted, 1, Result).
 
+positive_integer(X) :-
+    integer(X),
+    X > 0.
+
+find_missing([], Result, Result).
+find_missing([H|T], Current, Result) :-
+    H =:= Current,
+    Next is Current + 1,
+    find_missing(T, Next, Result).
+find_missing([H|_T], Current, Current) :-
+    H > Current.
+
+/*Three Summers*/
+two_summers([X|Xs], Goal, X, Y) :-
+    member(Y, Xs),
+    X + Y =:= Goal.
+two_summers([_|Xs], Goal, A, B) :-
+    two_summers(Xs, Goal, A, B).
+
+three_summers([X|Xs], Goal, X, B, C) :-
+    RestGoal is Goal - X,
+    two_summers(Xs, RestGoal, B, C).
+three_summers([_|Xs], Goal, A, B, C) :-
+    three_summers(Xs, Goal, A, B, C).
+
+/*Riffle*/
+riffle(Left, Right, Result, left) :-
+    length(Left, N),
+    length(Right, N),
+    riffle_left(Left, Right, Result).
+
+riffle(Left, Right, Result, right) :-
+    length(Left, N),
+    length(Right, N),
+    riffle_left(Right, Left, Result).
+
+riffle_left([], [], []).
+riffle_left([X|Xs], [Y|Ys], [X,Y|Zs]) :-
+    riffle_left(Xs, Ys, Zs).
+
+/*Group and Skip*/
+group_and_skip(N, Out, In, Leftovers) :-
+    group_and_skip_helper(N, Out, In, L),
+    reverse(L, Leftovers).
+
+group_and_skip_helper(0, _, _, []) :- !.
+group_and_skip_helper(N, Out, In, [Leftover|Rest]) :-
+    N > 0,
+    Leftover is N mod Out,
+    Groups is N // Out,
+    N1 is Groups * In,
+    group_and_skip_helper(N1, Out, In, Rest).
+
+/*Taxi Zum Zum*/
+taxi_zum_zum(Moves, Pos) :-
+    string_chars(Moves, Chars),
+    taxi_helper(Chars, (0,0), (0,1), Pos).
+
+taxi_helper([], Pos, _, Pos).
+taxi_helper([H|T], (X,Y), Dir, Pos) :-
+    ( H = 'f' -> move_forward((X,Y), Dir, (NX,NY)), NDir = Dir
+    ; H = 'l' -> turn_left(Dir, NDir), NX = X, NY = Y
+    ; H = 'r' -> turn_right(Dir, NDir), NX = X, NY = Y
+    ),
+    taxi_helper(T, (NX,NY), NDir, Pos).
+
+move_forward((X,Y), (DX,DY), (NX,NY)) :-
+    NX is X + DX,
+    NY is Y + DY.
+
+turn_left((DX,DY), (NX,NY)) :-
+    NX is -DY,
+    NY is DX.
+
+turn_right((DX,DY), (NX,NY)) :-
+    NX is DY,
+    NY is -DX.
 
 /* Complete the predicate all/0 to call the test predicates for the
  * Prolog predicates that you have defined in the above space. */
 
 all :-
     test_only_odd_digits,
-	test_domino_cycle.
+	test_domino_cycle,
+	test_first_missing_positive,
+    test_three_summers,
+    test_riffle,
+    test_group_and_skip,
+    test_taxi_zum_zum.
 
 /* DO NOT MODIFY ANYTHING BELOW THIS LINE!!!! */
 
