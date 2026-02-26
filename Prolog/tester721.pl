@@ -133,6 +133,89 @@ turn_right((DX,DY), (NX,NY)) :-
     NX is DY,
     NY is -DX.
 
+/*Pancake Scramble*/
+pancake_flip(L, N, Flipped) :-
+    length(Prefix, N),
+    append(Prefix, Suffix, L),
+    reverse(Prefix, RevPrefix),
+    append(RevPrefix, Suffix, Flipped).
+
+pancake_scramble(Text, Result) :-
+    string_chars(Text, Chars),
+    length(Chars, Len),
+    pancake_scramble_helper(2, Len, Chars, FinalChars),
+    string_chars(Result, FinalChars).
+
+pancake_scramble_helper(N, Len, Chars, Chars) :-
+    N > Len, !.
+
+pancake_scramble_helper(N, Len, Chars, CharsOut) :-
+    N =< Len,
+    pancake_flip(Chars, N, Flipped),
+    N1 is N + 1,
+    pancake_scramble_helper(N1, Len, Flipped, CharsOut).
+
+/*Tukeys Ninther*/
+tukeys_ninther([X], X) :- !.
+
+tukeys_ninther(Items, M) :-
+    medians_of_three(Items, Medians),
+    tukeys_ninther(Medians, M).
+
+medians_of_three([], []).
+medians_of_three([A,B,C | Rest], [Median | MedRest]) :-
+    median_of_three(A, B, C, Median),
+    medians_of_three(Rest, MedRest).
+
+median_of_three(A, B, C, M) :-
+    (   A =< B, B =< C -> M = B
+    ;   C =< B, B =< A -> M = B
+    ;   B =< A, A =< C -> M = A
+    ;   C =< A, A =< B -> M = A
+    ;   A =< C, C =< B -> M = C
+    ;   B =< C, C =< A -> M = C
+    ).
+
+/*Bulgarian Solitaire*/
+bulgarian_solitaire(L, K, Moves) :-
+    bulgarian_loop(L, K, 0, Moves).
+
+bulgarian_loop(L, K, Acc, Acc) :-
+    is_goal(L, K), !.
+
+bulgarian_loop(L, K, Acc, Moves) :-
+    bs_next(L, Next),
+    Acc1 is Acc + 1,
+    bulgarian_loop(Next, K, Acc1, Moves).
+
+bs_next(Curr, Next) :-
+    length(Curr, Len),
+    subtract_one(Curr, Dec),
+    remove_zeros(Dec, Clean),
+    Next = [Len | Clean].
+
+subtract_one([], []).
+subtract_one([H|T], [H1|T1]) :-
+    H1 is H - 1,
+    subtract_one(T, T1).
+
+remove_zeros([], []).
+remove_zeros([0|T], R) :-
+    remove_zeros(T, R).
+remove_zeros([H|T], [H|R]) :-
+    H > 0,
+    remove_zeros(T, R).
+
+is_goal(L, K) :-
+    length(L, K),
+    sort(L, Sorted),
+    make_goal_list(K, Goal),
+    Sorted = Goal.
+
+make_goal_list(K, Goal) :-
+    findall(N, between(1, K, N), Goal).
+
+
 /* Complete the predicate all/0 to call the test predicates for the
  * Prolog predicates that you have defined in the above space. */
 
@@ -143,7 +226,10 @@ all :-
     test_three_summers,
     test_riffle,
     test_group_and_skip,
-    test_taxi_zum_zum.
+    test_taxi_zum_zum,
+    test_pancake_scramble,
+    test_tukeys_ninther,
+    test_bulgarian_solitaire.
 
 /* DO NOT MODIFY ANYTHING BELOW THIS LINE!!!! */
 
